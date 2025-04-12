@@ -4,7 +4,7 @@
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int snap      = 25;       /* snap pixel */
 static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
 static const unsigned int systrayonleft = 0;    /* 0: systray in the right corner, >0: systray on left of status text */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
@@ -12,19 +12,18 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;        /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "Iosevka:size=11" };
+static const char *fonts[]          = { "Iosevka:size=12" };
 
-static const char col_bg[]       = "#1d2021"; // base bg
-static const char col_bg_focus[] = "#3c3836"; // focused bg
-static const char col_fg[]       = "#fbf1c7"; // bright text
-static const char col_fg_inactive[] = "#a89984"; // faded text
-static const char col_border_focus[] = "#3c3836";
-static const char col_border_inactive[] = "#282828";
+static const char col_fg[]        = "#888D94";
+static const char col_bg[]        = "#1B1D1E";
+static const char col_border[]    = "#232628";
+static const char col_selbg[]     = "#262D32";
+static const char col_selfg[]     = "#B0B8C0";
+static const char col_selborder[] = "#3B4252";
 
 static const char *colors[][3] = {
-	/*               fg              bg             border */
-	[SchemeNorm] = { col_fg_inactive, col_bg,         col_border_inactive },
-	[SchemeSel]  = { col_fg,          col_bg_focus,   col_border_focus },
+    [SchemeNorm] = { col_fg,    col_bg,    col_border },
+    [SchemeSel]  = { col_selfg, col_selbg, col_selborder },
 };
 
 /* tagging */
@@ -37,7 +36,6 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Chromium",  NULL,       NULL,       1 << 1,       0,           -1 },
-	// { "Gimp",     NULL,       NULL,       0,            1,           -1 },
 };
 
 /* layout(s) */
@@ -101,6 +99,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_5,      tagmon,         {.i = 1} },
 	//
 	{ 0,   XF86XK_AudioRaiseVolume,    spawn,     {.v = (const char*[]){"wpctl", "set-volume", "@DEFAULT_SINK@", ".1+", NULL} } },
 	{ 0,   XF86XK_AudioLowerVolume,    spawn,     {.v = (const char*[]){"wpctl", "set-volume", "@DEFAULT_SINK@", ".1-", NULL} } },
@@ -114,10 +113,6 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_3,                      2)
 	TAGKEYS(                        XK_4,                      3)
 	TAGKEYS(                        XK_5,                      4)
-	// TAGKEYS(                        XK_6,                      5)
-	// TAGKEYS(                        XK_7,                      6)
-	// TAGKEYS(                        XK_8,                      7)
-	// TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 };
 
