@@ -26,8 +26,10 @@ static const char *colors[][3] = {
     [SchemeSel]  = { col_selfg, col_selbg, col_selborder },
 };
 
+
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5"};
+
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -69,7 +71,7 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *launcherCmd[] = {"rofi", "-show", "drun", NULL};
 static const char *termcmd[]  = { "st", NULL };
-static const char *browserCmd[] = {"chromium", NULL};
+static const char *browserCmd[] = {"firefox", NULL};
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
