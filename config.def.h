@@ -1,9 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 #include <X11/XF86keysym.h>
+#include "fibonacci.c"
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int snap      = 25;       /* snap pixel */
 static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
 static const unsigned int systrayonleft = 0;    /* 0: systray in the right corner, >0: systray on left of status text */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
@@ -11,23 +12,24 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;        /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "Iosevka:size=11" };
+static const char *fonts[]          = { "Iosevka:size=12" };
 
-static const char col_bg[]       = "#1d2021"; // base bg
-static const char col_bg_focus[] = "#3c3836"; // focused bg
-static const char col_fg[]       = "#fbf1c7"; // bright text
-static const char col_fg_inactive[] = "#a89984"; // faded text
-static const char col_border_focus[] = "#3c3836";
-static const char col_border_inactive[] = "#282828";
+static const char col_fg[]        = "#888D94";
+static const char col_bg[]        = "#1B1D1E";
+static const char col_border[]    = "#232628";
+static const char col_selbg[]     = "#262D32";
+static const char col_selfg[]     = "#B0B8C0";
+static const char col_selborder[] = "#3B4252";
 
 static const char *colors[][3] = {
-	/*               fg              bg             border */
-	[SchemeNorm] = { col_fg_inactive, col_bg,         col_border_inactive },
-	[SchemeSel]  = { col_fg,          col_bg_focus,   col_border_focus },
+    [SchemeNorm] = { col_fg,    col_bg,    col_border },
+    [SchemeSel]  = { col_selfg, col_selbg, col_selborder },
 };
 
+
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "1", "2", "3", "4", "5"};
+
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -35,21 +37,23 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "Chromium",  NULL,       NULL,       1 << 2,       0,           -1 },
-	// { "Gimp",     NULL,       NULL,       0,            1,           -1 },
+	{ "firefox",  NULL,       NULL,       1 << 1,       0,           -1 },
 };
 
 /* layout(s) */
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
 static const Layout layouts[] = {
+	/* first entry is default */
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
+	{ "[\\]",      dwindle },
+	{ "[]=",      tile },
 	{ "[f]",      NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
+	{ "[M]",      monocle }, // Kinda fullscreen-ish
+	{ "[@]",      spiral },
 };
 
 /* key definitions */
@@ -67,11 +71,11 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *launcherCmd[] = {"rofi", "-show", "drun", NULL};
 static const char *termcmd[]  = { "st", NULL };
-static const char *browserCmd[] = {"chromium", NULL};
+static const char *browserCmd[] = {"firefox", NULL};
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = launcherCmd } },
+	{ MODKEY,                       XK_d,      spawn,          {.v = launcherCmd } },
 	{ MODKEY,                       XK_t,      spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      spawn,          {.v = browserCmd } },
 	{ MODKEY|ShiftMask,             XK_d,      spawn,          SHCMD("xrandr --output HDMI-1 --auto --right-of eDP-1") },
@@ -80,15 +84,15 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_f,      fullscreen,     {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_equal,  incnmaster,     {.i = +1 } },
+	{ MODKEY,                       XK_minus,  incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_t,      setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[3]} },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
 	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
@@ -97,6 +101,7 @@ static const Key keys[] = {
 	{ MODKEY,                       XK_period, focusmon,       {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_5,      tagmon,         {.i = 1} },
 	//
 	{ 0,   XF86XK_AudioRaiseVolume,    spawn,     {.v = (const char*[]){"wpctl", "set-volume", "@DEFAULT_SINK@", ".1+", NULL} } },
 	{ 0,   XF86XK_AudioLowerVolume,    spawn,     {.v = (const char*[]){"wpctl", "set-volume", "@DEFAULT_SINK@", ".1-", NULL} } },
@@ -110,10 +115,6 @@ static const Key keys[] = {
 	TAGKEYS(                        XK_3,                      2)
 	TAGKEYS(                        XK_4,                      3)
 	TAGKEYS(                        XK_5,                      4)
-	TAGKEYS(                        XK_6,                      5)
-	TAGKEYS(                        XK_7,                      6)
-	TAGKEYS(                        XK_8,                      7)
-	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 };
 
